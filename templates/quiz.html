@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="head">
+    <small>GAMIFIED ECO-LEARNING · {{ week }}</small>
+    <h1 style="color: #0f172a;">Kids EcoPlay — Weekly Challenge</h1>
+    <p style="color: #334155;">Test your environmental knowledge, learn smart recycling habits, and earn bonus EcoPoints!</p>
+</section>
+
+<div class="cols">
+    <section class="panel" style="background: #ffffff; color: #000000; border: 1px solid #cbd5e1;">
+        <h2 style="color: #0f766e;">🧩 Weekly Eco Quiz</h2>
+        <form method="post">
+            {% for q in questions %}
+                {% set q_idx = loop.index0 %}
+                <div style="margin-bottom:1.5rem; padding-bottom:1.25rem; border-bottom:1px solid #e2e8f0;">
+                    <!-- Pitch black question text -->
+                    <p style="font-weight: 700; font-size: 1.05rem; margin-bottom: 0.75rem; color: #000000;">
+                        {{ loop.index }}. {{ q[0] }}
+                    </p>
+                    {% for opt in q[1] %}
+                        <!-- Pitch black option text -->
+                        <label style="display: flex; flex-direction:row; align-items:center; gap:0.6rem; cursor:pointer; padding:0.4rem 0; color: #000000; font-weight: 500;">
+                            <input type="radio" name="q{{ q_idx }}" value="{{ loop.index0 }}" required style="width:auto; cursor:pointer;">
+                            <span>{{ opt }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn">Submit Quiz & Claim Points 🚀</button>
+        </form>
+
+        {% if result %}
+            <div class="result" style="margin-top:1.5rem; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;">
+                <h2>🎉 {{ result }}</h2>
+                <ul style="margin-top:0.75rem; color: #1e293b;">
+                    {% for q in questions %}
+                        <li><b>{{ loop.index }}.</b> {{ q[3] }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="panel" style="background: #ffffff; color: #000000; border: 1px solid #cbd5e1;">
+        <h2 style="color: #0f766e;">🏆 Rewards & Scoring</h2>
+        <ul style="color: #334155;">
+            <li>🎯 <b>Participation Reward:</b> Earn 5 EcoPoints just for completing the challenge.</li>
+            <li>⭐ <b>High-Score Bonus:</b> Score 75% or higher to earn +10 bonus EcoPoints!</li>
+            <li>🌱 <b>Level Up:</b> Points automatically update your rank on the Impact Dashboard.</li>
+            <li>🔄 <b>Fresh Questions:</b> Questions shuffle automatically every time you visit!</li>
+        </ul>
+    </section>
+</div>
+{% endblock %}

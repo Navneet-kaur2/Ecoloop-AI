@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EcoLoop AI - Smart Waste Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <a class="logo" href="/">♻ EcoLoop <b>AI</b></a>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/scanner">Waste Scanner</a>
+            <a href="/pickups">EcoBag & Pickups</a>
+            <a href="/solar">Solar Advisor</a>
+            <a href="/market">EcoMarket</a>
+            <a href="/events">EcoEvents</a>
+            <a href="/community">Community</a>
+            <a href="/quiz">Kids EcoPlay</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/assistant">AI Assistant</a>
+        </nav>
+        <div class="user-badge">
+            {% if session.get('user') %}
+                <span>👤 {{ session['user'] }}</span>
+                <a href="/logout" class="auth-btn">Logout</a>
+            {% else %}
+                <a href="/auth" class="auth-btn">Login / Register</a>
+            {% endif %}
+            <span class="points">★ {{ session.get('points', 0) }} pts</span>
+        </div>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for message in messages %}
+                        <div class="flash">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        EcoLoop AI · GNA University BCA Minor Project · Built with Flask, Gemini AI & SQLite.
+    </footer>
+</body>
+</html>

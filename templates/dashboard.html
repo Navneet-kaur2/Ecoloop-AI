@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="head">
+    <small>IMPACT TRACKING</small>
+    <h1>Impact Dashboard & Eco-Rank</h1>
+    <p>Review your personal sustainability journey, EcoPoints history, and level progression.</p>
+</section>
+
+<section class="panel">
+    <form method="get" class="dashboard-search">
+        <label>Search Username / Display Name
+            <input type="text" name="user" value="{{ user }}">
+        </label>
+        <button type="submit" class="btn">View Dashboard</button>
+    </form>
+</section>
+
+<div class="stats">
+    <article><b>{{ points }}</b><span>EcoPoints Balance</span></article>
+    <article><b>{{ eco_level }}</b><span>Current Eco Rank</span></article>
+    <article><b>{{ quiz_count }}</b><span>Quiz Submissions</span></article>
+    <article><b>{{ join_count }}</b><span>Event Sign-ups</span></article>
+</div>
+
+<div class="cols">
+    <section class="panel">
+        <h2>📜 Recent Activities</h2>
+        {% if acts %}
+            {% for a in acts %}
+                <p><b>{{ a.kind }}</b> — {{ a.description }}<br><small>{{ a.created }}</small></p>
+            {% endfor %}
+        {% else %}
+            <p>No recorded activities yet. Try scanning a waste item!</p>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <h2>⭐ Point Transaction History</h2>
+        {% if pts_history %}
+            {% for p in pts_history %}
+                <p><b>{{ '+' if p.amount > 0 else '' }}{{ p.amount }} pts</b> — {{ p.reason }}<br><small>{{ p.created }}</small></p>
+            {% endfor %}
+        {% else %}
+            <p>No point transactions yet.</p>
+        {% endif %}
+    </section>
+</div>
+
+<p class="note">Dashboard values reflect saved records and earned Green Points from your sustainable actions.</p>
+{% endblock %}

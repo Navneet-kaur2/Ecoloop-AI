@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="head">
+    <small>LOGISTICS & DISPOSAL</small>
+    <h1>EcoBag & Pickup Scheduler</h1>
+    <p>Manage your scanned waste items and schedule a doorstep collection or trash bank drop-off.</p>
+</section>
+
+<div class="cols">
+    <section class="panel">
+        <h2>📅 Schedule Doorstep Pickup</h2>
+        <form method="post">
+            <input type="hidden" name="action" value="schedule_pickup">
+            <label>Your Name / Nickname
+                <input type="text" name="username" value="{{ session.get('user', 'Guest') }}" required>
+            </label>
+            <label>Pickup Date
+                <input type="date" name="pickup_date" required>
+            </label>
+            <label>Time Slot
+                <select name="time_slot">
+                    <option>Morning (09:00 AM - 12:00 PM)</option>
+                    <option>Afternoon (01:00 PM - 04:00 PM)</option>
+                    <option>Evening (04:00 PM - 07:00 PM)</option>
+                </select>
+            </label>
+            <label>Complete Address / Location
+                <textarea name="address" rows="3" placeholder="Enter house no., street, city..." required></textarea>
+            </label>
+            <button type="submit" class="btn">Confirm Doorstep Pickup 🚚</button>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>♻️ Virtual EcoBag Summary</h2>
+        <p>Scanned waste items ready for recycling, donation, or pickup:</p>
+        <div class="ecobag-box">
+            <ul>
+                <li>📦 Plastic Container (0.15 kg) — 15 pts</li>
+                <li>📰 Old Newspapers (0.25 kg) — 10 pts</li>
+            </ul>
+            <p><b>Total Estimated Weight:</b> 0.40 kg</p>
+            <p><b>Total Points to Earn:</b> 25 pts</p>
+        </div>
+        <a href="/scanner" class="btn">Scan More Waste Items →</a>
+    </section>
+</div>
+{% endblock %}

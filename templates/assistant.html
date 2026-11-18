@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="head">
+    <small>CONVERSATIONAL AI</small>
+    <h1>EcoLoop AI Chat Assistant</h1>
+    <p>Chat in real-time with your expert sustainability assistant about recycling, composting, and zero-waste living.</p>
+</section>
+
+<div class="cols" style="grid-template-columns: 2fr 1fr;">
+    <!-- Chat Window Panel -->
+    <section class="panel" style="display:flex; flex-direction:column; height:550px;">
+        <h2>💬 Live Sustainability Chat</h2>
+        
+        <!-- Chat Messages Container -->
+        <div id="chat-container" style="flex:1; overflow-y:auto; border:1px solid #334155; padding:1rem; border-radius:8px; background:#0f172a; margin-bottom:1rem; display:flex; flex-direction:column; gap:1rem;">
+            <div class="message ai-message" style="background:#1e293b; padding:0.75rem 1rem; border-radius:8px; max-width:80%; align-self:flex-start; color:#e2e8f0;">
+                <b>EcoLoop AI:</b> Hello! How can I help you live more sustainably today? Feel free to ask about recycling, solar power, or waste segregation.
+            </div>
+        </div>
+
+        <!-- Chat Input Form -->
+        <form id="chat-form" style="display:flex; gap:0.5rem;">
+            <input type="text" id="user-input" placeholder="Type your question here..." required style="flex:1; padding:0.75rem; border-radius:6px; border:1px solid #475569; background:#1e293b; color:white;">
+            <button type="submit" class="btn" id="send-btn">Send ➔</button>
+        </form>
+    </section>
+
+    <!-- Suggested Prompt Chips -->
+    <section class="panel">
+        <h2>💡 Quick Starters</h2>
+        <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:1rem;">Click any prompt to ask instantly:</p>
+        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+            <button class="chip-btn" onclick="sendPreset('How do I properly clean and recycle plastic bottles?')" style="background:#1e293b; border:1px solid #334155; color:#34d399; padding:0.5rem; text-align:left; border-radius:6px; cursor:pointer;">♻️ How to recycle plastics?</button>
+            <button class="chip-btn" onclick="sendPreset('What is the best way to handle e-waste and old batteries?')" style="background:#1e293b; border:1px solid #334155; color:#34d399; padding:0.5rem; text-align:left; border-radius:6px; cursor:pointer;">🔋 Handling e-waste safely</button>
+            <button class="chip-btn" onclick="sendPreset('How do I start a home composting bin for organic food waste?')" style="background:#1e293b; border:1px solid #334155; color:#34d399; padding:0.5rem; text-align:left; border-radius:6px; cursor:pointer;">🌱 Starting home composting</button>
+        </div>
+    </section>
+</div>
+
+<script>
+const chatHistory = [];
+const chatContainer = document.getElementById('chat-container');
+const chatForm = document.getElementById('chat-form');
+const userInput = document.getElementById('userInput');
+
+chatForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const text = userInput.value.trim();
+    if(!text) return;
+    
+    appendMessage('You', text, 'user');
+    chatHistory.push({ role: 'user', content: text });
+    userInput.value = '';
+    
+    const loadingId = showLoading();
+    
+    try {
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: chatHistory })
+        });
+        const data = await res.json();
+        
+        removeLoading(loadingId);
+        appendMessage('EcoLoop AI', data.reply, 'ai');
+        chatHistory.push({ role: 'assistant', content: data.reply });
+    } catch(err) {
+        removeLoading(loadingId);
+        appendMessage('System', '⚠️ Error connecting to AI service.', 'ai');
+    }
+});
+
+function appendMessage(sender, text, type) {
+    const div = document.createElement('div');
+    div.style.padding = '0.75rem 1rem';
+    div.style.borderRadius = '8px';
+    div.style.maxWidth = '80%';
+    div.style.lineHeight = '1.4';
+    
+    if(type === 'user') {
+        div.style.background = '#0284c7';
+        div.style.color = 'white';
+        div.style.alignSelf = 'flex-end';
+        div.innerHTML = `<b>${sender}:</b> ${escapeHtml(text)}`;
+    } else {
+        div.style.background = '#1e293b';
+        div.style.color = '#e2e8f0';
+        div.style.alignSelf = 'flex-start';
+        div.innerHTML = `<b>${sender}:</b> ${formatMarkdown(text)}`;
+    }
+    
+    chatContainer.appendChild(div);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function showLoading() {
+    const id = 'load-' + Date.now();
+    const div = document.createElement('div');
+    div.id = id;
+    div.style.background = '#1e293b';
+    div.style.color = '#94a3b8';
+    div.style.padding = '0.75rem 1rem';
+    div.style.borderRadius = '8px';
+    div.style.alignSelf = 'flex-start';
+    div.innerHTML = `<b>EcoLoop AI:</b> <i>Thinking...</i>`;
+    chatContainer.appendChild(div);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    return id;
+}
+
+function removeLoading(id) {
+    const el = document.getElementById(id);
+    if(el) el.remove();
+}
+
+function sendPreset(text) {
+    userInput.value = text;
+    chatForm.dispatchEvent(new Event('submit'));
+}
+
+function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function formatMarkdown(text) {
+    return escapeHtml(text).replace(/\n/g, '<br>');
+}
+</script>
+{% endblock %}

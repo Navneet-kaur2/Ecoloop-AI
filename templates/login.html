@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="head">
+    <small>WELCOME BACK</small>
+    <h1 style="color: #0f172a;">Sign In to EcoLoop AI</h1>
+    <p style="color: #334155;">Access your points, impact dashboard, and EcoMarket.</p>
+</section>
+
+<div style="max-width: 450px; margin: 0 auto;" class="panel">
+    <form method="post">
+        <label>Username
+            <input type="text" name="username" required placeholder="Your username">
+        </label>
+        <label>Password
+            <input type="password" name="password" required placeholder="Your password">
+        </label>
+        <button type="submit" class="btn" style="width: 100%;">Sign In →</button>
+    </form>
+    <p style="margin-top: 1rem; text-align: center; color: #64748b;">
+        Don't have an account? <a href="/register" style="color: #0f766e; font-weight: bold;">Register here</a>
+    </p>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="head">
+    <small>CLEAN ENERGY CALCULATOR</small>
+    <h1>AI Solar Advisor</h1>
+    <p>Estimate daily solar energy generation, compare it with household electricity usage, and calculate potential savings.</p>
+</section>
+
+<div class="cols">
+    <section class="panel">
+        <h2>☀️ System & Usage Details</h2>
+        <form method="post">
+            <label>Solar System Capacity (kW)
+                <input type="number" name="capacity" value="3" min="0.1" step="0.1" required>
+            </label>
+            <label>Average Peak-Sun Hours / Day
+                <input type="number" name="sun" value="5" min="0" max="16" step="0.1" required>
+            </label>
+            <label>Daily Household Usage (kWh)
+                <input type="number" name="usage" value="12" min="0" step="0.1" required>
+            </label>
+            <label>Electricity Tariff (₹ / kWh)
+                <input type="number" name="tariff" value="8" min="0" step="0.1" required>
+            </label>
+            <label>System Losses (%)
+                <input type="number" name="loss" value="20" min="0" max="99.9" step="0.1" required>
+            </label>
+            <button type="submit" class="btn">Calculate Solar Estimate →</button>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>⚡ How Generation is Estimated</h2>
+        <p style="color:#94a3b8; margin-bottom:1rem;">We use the standard photovoltaic output formula:</p>
+        <p><b>Daily Output = Capacity (kW) × Peak Sun Hours × (1 − Losses)</b></p>
+        <ul style="margin-top:1rem;">
+            <li>🌞 <b>Peak Sun Hours:</b> Typically 4.5 to 5.5 hours/day across Punjab and North India.</li>
+            <li>📉 <b>System Losses:</b> Accounts for inverter efficiency, wiring, dust, and temperature (~15–20%).</li>
+            <li>💰 <b>Net Metering:</b> Excess units exported back to the grid reduce monthly bills.</li>
+        </ul>
+    </section>
+</div>
+
+{% if solar_result %}
+<div class="result panel">
+    <h2>📊 Estimated Daily Generation: {{ solar_result.gen }} kWh</h2>
+    <div class="stats">
+        <article><b>{{ solar_result.use }} kWh</b><span>Daily Usage</span></article>
+        <article><b>{{ solar_result.ratio }}%</b><span>Energy Offset Ratio</span></article>
+        <article><b>₹{{ solar_result.savings }}</b><span>Est. Daily Savings</span></article>
+        <article><b>₹{{ solar_result.monthly_savings }}</b><span>Est. Monthly Savings</span></article>
+    </div>
+    <p style="color:#e2e8f0;">{{ solar_result.summary }}</p>
+</div>
+{% endif %}
+{% endblock %}

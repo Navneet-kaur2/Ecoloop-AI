@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="head">
+    <small>SELLER PORTAL</small>
+    <h1 style="color: #0f172a;">Upload Product for Sale</h1>
+    <p style="color: #334155;">List your reusable or upcycled items for others to purchase using EcoPoints.</p>
+</section>
+
+<div style="max-width: 550px; margin: 0 auto;" class="panel">
+    <form method="post" enctype="multipart/form-data">
+        <label>Product Title
+            <input type="text" name="title" required placeholder="e.g., Upcycled Glass Lamp">
+        </label>
+        <label>Description & Condition
+            <textarea name="description" rows="3" required placeholder="Describe material, condition, and pickup details..."></textarea>
+        </label>
+        <label>Price (in EcoPoints)
+            <input type="number" name="price" min="1" value="25" required>
+        </label>
+        <label>Upload Product Photo
+            <input type="file" name="image" accept=".png,.jpg,.jpeg,.webp" required>
+        </label>
+        <button type="submit" class="btn" style="width: 100%;">Publish Listing 🚀</button>
+    </form>
+</div>
+{% endblock %}

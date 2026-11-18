@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero-banner">
+    <small style="color: #34d399; font-weight: bold; letter-spacing: 0.05em;">A CIRCULAR FUTURE STARTS HERE</small>
+    <h1 style="color: white; font-size: 2.75rem; margin: 0.5rem 0; line-height: 1.2;">Give resources a second life.<br><span style="color: #34d399;">Make sustainability a habit.</span></h1>
+    <p style="color: #e2e8f0; font-size: 1.1rem; max-width: 650px; margin: 1rem auto 2rem auto;">Waste decisions, solar advice, reusable products, local volunteering, community rewards, and fun eco-learning in one platform.</p>
+    <a href="/scanner" class="btn" style="background: #059669; padding: 0.85rem 2rem; font-size: 1rem;">Explore Waste Scanner →</a>
+</section>
+
+<div class="stats">
+    <article><b>{{ product_count }}</b><span>Marketplace Listings</span></article>
+    <article><b>{{ event_count }}</b><span>Community Events</span></article>
+    <article><b>{{ stats.ecopoints }}</b><span>Your EcoPoints</span></article>
+</div>
+
+<h2 style="margin: 2rem 0 1rem 0; color: #0f172a; font-size: 1.75rem;">Platform Modules & Features</h2>
+
+<div class="grid">
+    <!-- 1. Smart Waste Scanner -->
+<article class="panel">
+    <div style="height: 160px; overflow: hidden; width: 100%;">
+        <img src="https://images.unsplash.com/photo-1532996122724-e3c3d4a05b11?auto=format&fit=crop&w=600&q=80" alt="Smart Waste Scanner" style="width: 100%; height: 160px; object-fit: cover;">
+    </div>
+    <div style="padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <h2>📸 Smart Waste Scanner</h2>
+            <p>AI-powered multi-material image recognition to instantly sort and provide circular recycling actions.</p>
+        </div>
+        <a href="/scanner" class="btn" style="margin-top:1rem; display:inline-block; text-align:center;">Launch Scanner →</a>
+    </div>
+</article>
+    <!-- 2. EcoBag & Pickups -->
+    <article class="panel">
+        <div style="height: 160px; overflow: hidden; width: 100%;">
+            <img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=600&q=80" alt="EcoBag & Pickups" style="width: 100%; height: 160px; object-fit: cover;">
+        </div>
+        <div style="padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <h2>🛍️ EcoBag & Pickups</h2>
+                <p>Track your sorted recyclables in your virtual EcoBag and schedule convenient doorstep pickups.</p>
+            </div>
+            <a href="/pickups" class="btn" style="margin-top:1rem; display:inline-block; text-align:center;">Schedule Pickup →</a>
+        </div>
+    </article>
+
+  <!-- 3. Solar Energy Advisor -->
+<article class="panel">
+    <div style="height: 160px; overflow: hidden; width: 100%;">
+        <img src="https://images.unsplash.com/photo-1509391365360-e595cf4c2859?auto=format&fit=crop&w=600&q=80" alt="Solar Energy Advisor" style="width: 100%; height: 160px; object-fit: cover;">
+    </div>
+    <div style="padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <h2>☀️ Solar Energy Advisor</h2>
+            <p>Calculate household solar electricity generation, bill savings, and carbon footprint reduction.</p>
+        </div>
+        <a href="/solar" class="btn" style="margin-top:1rem; display:inline-block; text-align:center;">Calculate Savings →</a>
+    </div>
+</article>
+
+    <!-- 4. EcoMarket & Rewards -->
+<article class="panel">
+    <div style="height: 160px; overflow: hidden; width: 100%;">
+        <img src="green-marketing-2-startuptalky.jpg" alt="EcoMarket & Rewards" style="width: 100%; height: 160px; object-fit: cover;">
+    </div>
+    <div style="padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <h2>🛒 EcoMarket & Rewards</h2>
+            <p>Redeem your earned EcoPoints for upcycled sustainable goods or list your own creations.</p>
+        </div>
+        <a href="/market" class="btn" style="margin-top:1rem; display:inline-block; text-align:center;">Explore Market →</a>
+    </div>
+</article>
+
+
+    <!-- 5. EcoEvents -->
+    <article class="panel">
+        <div style="height: 160px; overflow: hidden; width: 100%;">
+            <img src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=600&q=80" alt="EcoEvents" style="width: 100%; height: 160px; object-fit: cover;">
+        </div>
+        <div style="padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <h2>🤝 EcoEvents & Drives</h2>
+                <p>Participate in local neighbourhood cleanups, tree planting, and sustainability workshops.</p>
+            </div>
+            <a href="/events" class="btn" style="margin-top:1rem; display:inline-block; text-align:center;">View Events →</a>
+        </div>
+    </article>
+
+    <!-- 6. Community Feed -->
+    <article class="panel">
+        <div style="height: 160px; overflow: hidden; width: 100%;">
+            <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80" alt="Community Network" style="width: 100%; height: 160px; object-fit: cover;">
+        </div>
+        <div style="padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <h2>🌍 Community Network</h2>
+                <p>Share DIY upcycling ideas, recycling tips, and connect with fellow environmental advocates.</p>
+            </div>
+            <a href="/community" class="btn" style="margin-top:1rem; display:inline-block; text-align:center;">Join Discussion →</a>
+        </div>
+    </article>
+
+    <!-- 7. Kids EcoPlay -->
+    <article class="panel">
+        <div style="height: 160px; overflow: hidden; width: 100%;">
+            <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80" alt="Kids EcoPlay Quiz" style="width: 100%; height: 160px; object-fit: cover;">
+        </div>
+        <div style="padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <h2>🎮 Kids EcoPlay Quiz</h2>
+                <p>Gamified weekly environmental quizzes designed to make learning sustainability fun and rewarding.</p>
+            </div>
+            <a href="/quiz" class="btn" style="margin-top:1rem; display:inline-block; text-align:center;">Play & Learn →</a>
+        </div>
+    </article>
+
+    <!-- 8. Impact Dashboard -->
+    <article class="panel">
+        <div style="height: 160px; overflow: hidden; width: 100%;">
+            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80" alt="Impact Dashboard" style="width: 100%; height: 160px; object-fit: cover;">
+        </div>
+        <div style="padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <h2>📊 Impact Dashboard</h2>
+                <p>Track your personal EcoPoints balance, rank progression, and sustainability transaction history.</p>
+            </div>
+            <a href="/dashboard" class="btn" style="margin-top:1rem; display:inline-block; text-align:center;">View Dashboard →</a>
+        </div>
+    </article>
+
+    <!-- 9. AI Assistant -->
+    <article class="panel">
+        <div style="height: 160px; overflow: hidden; width: 100%;">
+            <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80" alt="AI Sustainability Assistant" style="width: 100%; height: 160px; object-fit: cover;">
+        </div>
+        <div style="padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <h2>🤖 AI Sustainability Assistant</h2>
+                <p>Get instant expert answers and practical guidance on waste management, composting, and e-waste.</p>
+            </div>
+            <a href="/assistant" class="btn" style="margin-top:1rem; display:inline-block; text-align:center;">Ask Assistant →</a>
+        </div>
+    </article>
+</div>
+{% endblock %}

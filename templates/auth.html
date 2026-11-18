@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="head">
+    <small>ACCOUNT MANAGEMENT</small>
+    <h1>Welcome to EcoLoop AI</h1>
+    <p>Sign in to your account or register a new profile to track your EcoPoints and waste impact.</p>
+</section>
+
+<div class="cols">
+    <section class="panel">
+        <h2>🔑 Login</h2>
+        <form method="post" action="/login">
+            <label>Username
+                <input type="text" name="username" required>
+            </label>
+            <label>Password
+                <input type="password" name="password" required>
+            </label>
+            <button type="submit" class="btn">Login to EcoLoop →</button>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>📝 Register New Account</h2>
+        <form method="post" action="/register">
+            <label>Choose Username
+                <input type="text" name="username" required>
+            </label>
+            <label>Email Address
+                <input type="email" name="email" required>
+            </label>
+            <label>Create Password
+                <input type="password" name="password" required>
+            </label>
+            <button type="submit" class="btn">Register Account →</button>
+        </form>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="head">
+    <small>NEIGHBOURHOOD NETWORK</small>
+    <h1>Community Sustainability Feed</h1>
+    <p>Share upcycling tips, request volunteers for local drives, and celebrate eco-milestones together.</p>
+</section>
+
+<div class="cols">
+    <section class="panel">
+        <h2>✍️ Share a Post</h2>
+        <form method="post">
+            <label>Display Name
+                <input type="text" name="username" value="{{ session.get('user', 'Guest') }}" required>
+            </label>
+            <label>Your Message
+                <textarea name="body" rows="4" maxlength="1000" placeholder="Share a recycling tip, upcycling project, or local drive update..." required></textarea>
+            </label>
+            <button type="submit" class="btn">Post to Community →</button>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>🌍 Community Guidelines</h2>
+        <ul>
+            <li>🤝 Keep discussions constructive, supportive, and focused on sustainability.</li>
+            <li>📍 Use public landmarks when coordinating neighbourhood cleanups.</li>
+            <li>💡 Share DIY repair and upcycling ideas to inspire others.</li>
+        </ul>
+    </section>
+</div>
+
+<h2 style="margin-top:2rem;">📢 Latest Updates</h2>
+<div class="grid">
+    {% if posts %}
+        {% for p in posts %}
+            <article class="panel">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                    <b style="color:#34d399;">👤 {{ p.username }}</b>
+                    <small style="color:#94a3b8;">{{ p.created }}</small>
+                </div>
+                <p style="color:#e2e8f0;">{{ p.body }}</p>
+            </article>
+        {% endfor %}
+    {% else %}
+        <p>No community posts yet. Start the conversation above!</p>
+    {% endif %}
+</div>
+{% endblock %}

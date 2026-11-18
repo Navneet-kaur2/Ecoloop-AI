@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8 py-6">
+    <!-- Header banner -->
+    <div class="text-center max-w-2xl mx-auto space-y-3">
+        <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 shadow-sm">
+            <i class="fa-solid fa-wand-magic-sparkles text-emerald-600"></i> AI Vision & Action Plan Complete
+        </span>
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Waste Analysis & Action Guidance</h1>
+        <p class="text-sm text-slate-600">Here is what our AI detected in your image, the exact steps you should take next, and an option to chat live for follow-up questions.</p>
+    </div>
+
+    <!-- Results Grid (Detected Materials & AI Guidance) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Column 1: Material Breakdown -->
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg shadow-inner">
+                    <i class="fa-solid fa-microchip"></i>
+                </div>
+                <h2 class="text-lg font-bold text-slate-900">Detected Materials</h2>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl text-slate-700 leading-relaxed whitespace-pre-line text-xs">
+                {{ result }}
+            </div>
+        </div>
+
+        <!-- Column 2: AI Action Guidance -->
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg shadow-inner">
+                    <i class="fa-solid fa-list-check"></i>
+                </div>
+                <h2 class="text-lg font-bold text-slate-900">What You Should Do</h2>
+            </div>
+            <div class="bg-emerald-50/50 border border-emerald-200/60 p-4 rounded-2xl text-slate-700 leading-relaxed whitespace-pre-line text-xs">
+                {{ guidance }}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4 pt-2">
+        <a href="/scanner" class="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-center font-semibold rounded-2xl text-xs transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-camera"></i> Scan Another Item
+        </a>
+        <a href="/pickups" class="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-center font-semibold rounded-2xl text-xs shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-truck-fast"></i> Schedule Pickup & Earn EcoPoints →
+        </a>
+    </div>
+
+    <!-- Interactive AI Chat Follow-up Section -->
+    <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-200 space-y-6">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg shadow-inner">
+                <i class="fa-solid fa-comments"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-bold text-slate-900">Have more questions about this item?</h2>
+                <p class="text-xs text-slate-500">Chat live with our AI assistant to learn specific cleaning tips or DIY upcycling ideas.</p>
+            </div>
+        </div>
+
+        <!-- Chat Messages Box -->
+        <div id="scanner-chat-container" style="height:280px;" class="overflow-y-auto border border-slate-200 p-4 rounded-2xl bg-slate-50 flex flex-col gap-3">
+            <div class="p-3 rounded-xl bg-white border border-slate-200 text-slate-700 text-sm max-w-[85%] self-start shadow-sm">
+                <b>EcoLoop AI:</b> I have analyzed your item and provided guidance above! Ask me anything else you need help with.
+            </div>
+        </div>
+
+        <!-- Chat Input Form -->
+        <form id="scanner-chat-form" class="flex gap-3">
+            <input type="text" id="scanner-user-input" placeholder="e.g., Can I melt this plastic or paint over it?" required class="flex-1 py-3 px-4 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white text-slate-800">
+            <button type="submit" class="py-3 px-6 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl text-xs transition shadow-md flex items-center gap-2">
+                <span>Ask AI</span> <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+const scannedContext = `The user scanned a waste item. Analysis: {{ result | safe }}. Guidance given: {{ guidance | safe }}`;
+const scannerChatHistory = [
+    { role: 'system', content: `Context from previous scan: ${scannedContext}` }
+];
+
+const chatBox = document.getElementById('scanner-chat-container');
+const chatForm = document.getElementById('scanner-chat-form');
+const inputField = document.getElementById('scanner-user-input');
+
+chatForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const query = inputField.value.trim();
+    if(!query) return;
+
+    appendBubble('You', query, 'user');
+    scannerChatHistory.push({ role: 'user', content: query });
+    inputField.value = '';
+
+    const loadId = showLoader();
+
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: scannerChatHistory })
+        });
+        const data = await response.json();
+
+        removeLoader(loadId);
+        appendBubble('EcoLoop AI', data.reply, 'ai');
+        scannerChatHistory.push({ role: 'assistant', content: data.reply });
+    } catch(err) {
+        removeLoader(loadId);
+        appendBubble('System', '⚠️ Error connecting to AI service.', 'ai');
+    }
+});
+
+function appendBubble(sender, text, type) {
+    const div = document.createElement('div');
+    div.className = type === 'user' 
+        ? 'p-3 rounded-xl bg-emerald-600 text-white text-sm max-w-[85%] self-end shadow-sm'
+        : 'p-3 rounded-xl bg-white border border-slate-200 text-slate-700 text-sm max-w-[85%] self-start shadow-sm';
+    
+    div.innerHTML = `<b>${sender}:</b> ${escapeHtml(text).replace(/\n/g, '<br>')}`;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function showLoader() {
+    const id = 'loader-' + Date.now();
+    const div = document.createElement('div');
+    div.id = id;
+    div.className = 'p-3 rounded-xl bg-white border border-slate-200 text-slate-400 text-sm max-w-[85%] self-start shadow-sm italic';
+    div.innerHTML = `<b>EcoLoop AI:</b> Thinking...`;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    return id;
+}
+
+function removeLoader(id) {
+    const el = document.getElementById(id);
+    if(el) el.remove();
+}
+
+function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+</script>
+{% endblock %}

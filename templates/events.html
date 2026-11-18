@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="head">
+    <small>COMMUNITY ACTION</small>
+    <h1>EcoEvents & Volunteering</h1>
+    <p>Organise cleanups, recycling drives, repair workshops, and local environmental activities to earn Green Points.</p>
+</section>
+
+<div class="cols">
+    <section class="panel">
+        <h2>📅 Create an Environmental Event</h2>
+        <form method="post">
+            <input type="hidden" name="action" value="create">
+            <label>Organizer Nickname
+                <input type="text" name="organizer" value="{{ session.get('user', 'Guest') }}" required>
+            </label>
+            <label>Event Title
+                <input type="text" name="title" placeholder="e.g., Neighbourhood Plastic Cleanup" required>
+            </label>
+            <label>Description
+                <textarea name="description" rows="3" placeholder="Describe the activity and what volunteers should bring..." required></textarea>
+            </label>
+            <label>Date
+                <input type="date" name="date" required>
+            </label>
+            <label>Public Meeting Location
+                <input type="text" name="location" placeholder="e.g., Central Park Gate 2" required>
+            </label>
+            <label>Points After Completion
+                <input type="number" name="points" value="50" min="0" max="500" required>
+            </label>
+            <button type="submit" class="btn">Publish Event 🚀</button>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>🤝 Volunteer Guidelines</h2>
+        <p>Participating in community environmental drives multiplies your positive impact.</p>
+        <ul>
+            <li><b>Join Early:</b> Sign up for local community drives in advance.</li>
+            <li><b>Verify Completion:</b> Organisers can verify attendance to award earned EcoPoints.</li>
+            <li><b>Earn Rank Badges:</b> Active participation helps you progress from Seed Starter to Planet Guardian!</li>
+        </ul>
+    </section>
+</div>
+
+<h2>🌱 Upcoming Community Events</h2>
+<div class="grid">
+    {% if events %}
+        {% for e in events %}
+            <article class="panel">
+                <span class="pill">{{ e.date }} · {{ e.n }} volunteers</span>
+                <h3>{{ e.title }}</h3>
+                <p>{{ e.description }}</p>
+                <p>📍 {{ e.location }}</p>
+                <p><small>Organiser: {{ e.organizer }} · <b>{{ e.points }} pts</b> upon completion</small></p>
+                
+                <form method="post" style="margin-top: 10px;">
+                    <input type="hidden" name="action" value="join">
+                    <input type="hidden" name="eid" value="{{ e.id }}">
+                    <label>Volunteer Nickname
+                        <input type="text" name="username" value="{{ session.get('user', 'Guest') }}" required>
+                    </label>
+                    <button type="submit" class="btn">Join Event</button>
+                </form>
+            </article>
+        {% endfor %}
+    {% else %}
+        <p>No upcoming events listed yet. Be the first to create one!</p>
+    {% endif %}
+</div>
+{% endblock %}
