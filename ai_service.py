@@ -9,8 +9,10 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 # Groq vision model used for waste image analysis.
-# Groq retires preview models over time, so the name lives here as a constant.
-GROQ_VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+# Read from the GROQ_VISION_MODEL env var so it can be swapped without a code
+# change (Groq retires preview models over time). Run list_models.py to see
+# which model ids are currently available on your account.
+VISION_MODEL = os.environ.get("GROQ_VISION_MODEL") or "qwen/qwen3.8-27b"
 
 try:
     from groq import Groq
@@ -64,7 +66,7 @@ def analyze_waste_image(image_path: str, fallback_category: str = "Plastic") -> 
             encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
 
         chat_completion = client.chat.completions.create(
-            model=GROQ_VISION_MODEL,
+            model=VISION_MODEL,
             messages=[
                 {
                     "role": "user",
