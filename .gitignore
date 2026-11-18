@@ -1,0 +1,16 @@
+# Secrets — never commit your real API key
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Flask instance folder (holds the SQLite db)
+instance/
+
+# Uploaded user images
+static/uploads/*
+!static/uploads/.gitkeep

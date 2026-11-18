@@ -35,7 +35,7 @@
                 <h2 class="text-lg font-bold text-slate-900">What You Should Do</h2>
             </div>
             <div class="bg-emerald-50/50 border border-emerald-200/60 p-4 rounded-2xl text-slate-700 leading-relaxed whitespace-pre-line text-xs">
-                {{ guidance }}
+                {% if guidance %}{{ guidance }}{% else %}<span class="italic text-slate-400">Guidance unavailable because the image analysis failed — see the error under "Detected Materials".</span>{% endif %}
             </div>
         </div>
 

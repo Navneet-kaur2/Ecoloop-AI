@@ -1,8 +1,16 @@
 import os
 import base64
+import logging
+import mimetypes
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
+
+# Groq vision model used for waste image analysis.
+# Groq retires preview models over time, so the name lives here as a constant.
+GROQ_VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 
 try:
     from groq import Groq
@@ -10,85 +18,122 @@ try:
 except ImportError:
     GROQ_AVAILABLE = False
 
+
+def _get_groq_api_key() -> str:
+    """Return the configured Groq API key.
+
+    Prefers GROQ_API_KEY but falls back to the legacy GEMINI_API_KEY env var so
+    existing deployments keep working without touching their .env file.
+    """
+    return (os.environ.get("GROQ_API_KEY") or os.environ.get("GEMINI_API_KEY", "")).strip()
+
+
 def analyze_waste_image(image_path: str, fallback_category: str = "Plastic") -> str:
-    """Analyzes waste images using Groq's vision model when a gsk_ key is provided."""
-    api_key = os.environ.get("GEMINI_API_KEY", "").strip()
-    
+    """Analyze a waste image with Groq's vision model.
+
+    Returns the model's analysis on success. On any failure (missing package,
+    missing/bad API key, or an API error) returns an error string starting with
+    "⚠️" and logs the full traceback. Never returns fabricated data.
+    """
+    api_key = _get_groq_api_key()
+
+    if not GROQ_AVAILABLE:
+        return (
+            "⚠️ Image analysis failed: the `groq` Python package is not installed. "
+            "Run `pip install -r requirements.txt` and restart the app."
+        )
+
     if not api_key:
-        return "⚠️ Error: API key is missing in your .env file."
+        return (
+            "⚠️ Image analysis failed: GROQ_API_KEY is missing in your .env file. "
+            "Add a Groq key that starts with 'gsk_'."
+        )
 
-    if api_key.startswith("gsk_") and GROQ_AVAILABLE:
-        try:
-            client = Groq(api_key=api_key)
-            
-            with open(image_path, "rb") as image_file:
-                encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-            
-            chat_completion = client.chat.completions.create(
-                model="llama-3.2-11b-vision-preview",
-                messages=[
-                    {
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "text", 
-                                "text": "Analyze this waste image. Identify all distinct items and materials visible. For each item, provide: 1. Item Name, 2. Material Type, 3. Best Circular Economy Action (Recycle, Upcycle, Compost, or Reuse), 4. Estimated EcoPoints earned. Format clearly as itemized bullet points."
-                            },
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:image/jpeg;base64,{encoded_string}",
-                                },
-                            },
-                        ],
-                    }
-                ],
-                temperature=0.7,
-                max_tokens=1024,
-            )
-            return chat_completion.choices[0].message.content
-        except Exception as e:
-            print(f"Groq Vision Error: {e}")
+    if not api_key.startswith("gsk_"):
+        return (
+            "⚠️ Image analysis failed: the API key does not look like a Groq key. "
+            "GROQ_API_KEY must start with 'gsk_' (it currently does not)."
+        )
 
-    # Fallback response
-    return (
-        "• **Detected Item 1: Plastic Beverage Bottle**\n"
-        "  - Material Type: Polyethylene Terephthalate (PET)\n"
-        "  - Best Circular Economy Action: Empty liquid, rinse container, and deposit in plastic recycling bin.\n"
-        "  - Estimated EcoPoints: +15 pts\n\n"
-        "• **Detected Item 2: Corrugated Cardboard Box**\n"
-        "  - Material Type: Cellulose Fiber / Paper\n"
-        "  - Best Circular Economy Action: Flatten completely and store in dry paper recycling bundle.\n"
-        "  - Estimated EcoPoints: +10 pts"
-    )
+    try:
+        client = Groq(api_key=api_key)
 
-def ask_sustainability_ai(messages_history: list) -> str:
-    """Answers user sustainability questions with conversation history using Groq text model."""
-    api_key = os.environ.get("GEMINI_API_KEY", "").strip()
-    
-    if not api_key:
-        return "⚠️ Error: API key is missing in your .env file."
+        # Detect the real MIME type instead of hardcoding image/jpeg.
+        mime_type = mimetypes.guess_type(image_path)[0] or "image/jpeg"
+        with open(image_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
 
-    if api_key.startswith("gsk_") and GROQ_AVAILABLE:
-        try:
-            client = Groq(api_key=api_key)
-            
-            # Prepend the system instructions to the chat history array
-            formatted_messages = [
+        chat_completion = client.chat.completions.create(
+            model=GROQ_VISION_MODEL,
+            messages=[
                 {
-                    "role": "system",
-                    "content": "You are EcoLoop AI's expert Sustainability Assistant. Provide clear, practical, and structured guidance with bullet points."
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Analyze this waste image. Identify all distinct items and materials visible. For each item, provide: 1. Item Name, 2. Material Type, 3. Best Circular Economy Action (Recycle, Upcycle, Compost, or Reuse), 4. Estimated EcoPoints earned. Format clearly as itemized bullet points."
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:{mime_type};base64,{encoded_string}",
+                            },
+                        },
+                    ],
                 }
-            ] + messages_history
+            ],
+            temperature=0.7,
+            max_tokens=1024,
+        )
+        return chat_completion.choices[0].message.content
+    except Exception as e:
+        logger.exception("Groq vision analysis failed")
+        return f"⚠️ Image analysis failed: {e}"
 
-            completion = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=formatted_messages,
-                temperature=0.7,
-                max_tokens=1024,
-            )
-            return completion.choices[0].message.content
-        except Exception as e:
-            print(f"Groq Text Error: {e}")
 
-    return "Follow the circular economy principles: Refuse, Reduce, Reuse, Repurpose, and Recycle."
+def ask_sustainability_ai(messages_history) -> str:
+    """Answer user sustainability questions using Groq's text model.
+
+    Accepts either a list of chat messages or a plain question string. Returns
+    the model's answer on success. On any failure returns an error string
+    starting with "⚠️" and logs the full traceback. Never returns fabricated data.
+    """
+    # Normalize input: accept either a list of messages or a plain question string.
+    if isinstance(messages_history, str):
+        messages_history = [{"role": "user", "content": messages_history}]
+
+    api_key = _get_groq_api_key()
+
+    if not GROQ_AVAILABLE:
+        return (
+            "⚠️ The `groq` Python package is not installed. "
+            "Run `pip install -r requirements.txt` and restart the app."
+        )
+
+    if not api_key:
+        return "⚠️ GROQ_API_KEY is missing in your .env file."
+
+    if not api_key.startswith("gsk_"):
+        return "⚠️ GROQ_API_KEY does not look like a Groq key (it must start with 'gsk_')."
+
+    try:
+        client = Groq(api_key=api_key)
+
+        # Prepend the system instructions to the chat history array
+        formatted_messages = [
+            {
+                "role": "system",
+                "content": "You are EcoLoop AI's expert Sustainability Assistant. Provide clear, practical, and structured guidance with bullet points."
+            }
+        ] + messages_history
+
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=formatted_messages,
+            temperature=0.7,
+            max_tokens=1024,
+        )
+        return completion.choices[0].message.content
+    except Exception as e:
+        logger.exception("Groq text completion failed")
+        return f"⚠️ Sustainability assistant failed: {e}"

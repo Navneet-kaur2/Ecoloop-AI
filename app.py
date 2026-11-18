@@ -2,6 +2,7 @@ from flask import Flask, request, redirect, flash, render_template, session, jso
 import sqlite3
 import os
 import random
+import uuid
 from pathlib import Path
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -109,23 +110,42 @@ def scanner():
     if request.method == 'POST':
         file = request.files.get('file')
         if file and file.filename:
+            filename = secure_filename(file.filename)
+            if not filename:
+                flash("Invalid file name. Please upload a valid image.")
+                return redirect(request.url)
+
+            # Validate the extension to avoid non-image / unsafe uploads.
+            ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+            allowed = {"png", "jpg", "jpeg", "webp", "gif"}
+            if ext not in allowed:
+                flash("Unsupported image format. Allowed: PNG, JPG, JPEG, WEBP, GIF.")
+                return redirect(request.url)
+
+            # Prefix with a uuid so same-named uploads never overwrite each other
+            # and secure_filename already strips path-traversal segments.
             upload_dir = ROOT / "static" / "uploads"
-            file_path = upload_dir / file.filename
+            safe_name = f"{uuid.uuid4().hex}_{filename}"
+            file_path = upload_dir / safe_name
             file.save(str(file_path))
-            
-            # Analyze waste image via Groq vision model
+
+            # Analyze waste image via Groq vision model.
             analysis_result = analyze_waste_image(str(file_path))
-            
-            # Automatically generate structured guidance
+
+            # If analysis failed, surface the error instead of calling the guidance AI.
+            if isinstance(analysis_result, str) and analysis_result.startswith("⚠️"):
+                return render_template('scanner_result.html', result=analysis_result, guidance=None)
+
+            # Automatically generate structured guidance.
             guidance_prompt = (
                 f"Based on this waste analysis:\n{analysis_result}\n\n"
                 "Provide a clear, step-by-step guidance plan for the user telling them exactly what they should do "
                 "with this product (how to clean it, where to store it, how to dispose or upcycle it safely)."
             )
             ai_guidance = ask_sustainability_ai([{"role": "user", "content": guidance_prompt}])
-            
+
             return render_template('scanner_result.html', result=analysis_result, guidance=ai_guidance)
-            
+
     return render_template('scanner.html')
 @app.route("/pickups", methods=["GET", "POST"])
 def pickups():
