@@ -73,7 +73,7 @@ def analyze_waste_image(image_path: str, fallback_category: str = "Plastic") -> 
                     "content": [
                         {
                             "type": "text",
-                            "text": "Analyze this waste image. Identify all distinct items and materials visible. For each item, provide: 1. Item Name, 2. Material Type, 3. Best Circular Economy Action (Recycle, Upcycle, Compost, or Reuse), 4. Estimated EcoPoints earned. Format clearly as itemized bullet points."
+                            "text": "Analyze this waste image. Identify all distinct items and materials visible. For each item, provide: 1. Item Name, 2. Material Type, 3. Common Usage (what this item is typically used for in everyday life), 4. Best Circular Economy Action (Recycle, Upcycle, Compost, or Reuse), 5. Estimated EcoPoints earned. Format clearly as itemized bullet points."
                         },
                         {
                             "type": "image_url",
